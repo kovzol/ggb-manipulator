@@ -1,0 +1,7 @@
+#!/bin/sh
+# Add selection-allowed=false to all image type objects.
+
+cat - | \
+ xmlstarlet ed -P -d "/geogebra/construction/element[@type=\"image\"]/selectionAllowed" | \
+ xmlstarlet ed -P -s "/geogebra/construction/element[@type=\"image\"]" -t elem -n selectionAllowed -v "" | \
+ xmlstarlet ed -P -a "/geogebra/construction/element[@type=\"image\"]/selectionAllowed" -t attr -n val -v false

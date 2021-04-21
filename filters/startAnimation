@@ -1,0 +1,21 @@
+#!/bin/sh
+# Change startAnimation to the given setting.
+
+# Parameter is sent with "-s false", for example.
+
+# Load options:
+while getopts ":s:" O; do
+ case $O in
+  s)
+   STARTANIM=$OPTARG
+   ;;
+ esac
+done
+
+if [ "$STARTANIM" = "" ]; then
+ cat - # do nothing
+ exit 0
+ fi
+
+cat - | \
+ xmlstarlet ed -P -u "/geogebra/kernel/startAnimation/@val" -v $STARTANIM

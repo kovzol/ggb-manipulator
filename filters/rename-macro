@@ -1,0 +1,29 @@
+#!/bin/sh
+# Rename a macro.
+
+# Parameters are sent with -o oldname -n newname -t new_toolname -h new_help.
+
+# Load options:
+while getopts ":o:n:t:h:" O; do
+ case $O in
+  o)
+   OLDNAME=`echo $OPTARG | sed s/'"'//g`
+   ;;
+  n)
+   NEWNAME=`echo $OPTARG | sed s/'"'//g`
+   ;;
+  t)
+   NEWTOOLNAME=`echo $OPTARG | sed s/'_'/' '/g`
+   ;;
+  h)
+   NEWHELP=`echo "$OPTARG" | sed s/'_'/' '/g`
+   ;;
+ esac
+done
+
+cat - | \
+ xmlstarlet ed -u "/geogebra/macro[@cmdName=\"$OLDNAME\"]/@toolName" -v "$NEWTOOLNAME" |
+ xmlstarlet ed -u "/geogebra/macro[@cmdName=\"$OLDNAME\"]/@toolHelp" -v "$NEWHELP" |
+ xmlstarlet ed -u "/geogebra/macro[@cmdName=\"$OLDNAME\"]/@iconFile" -v "icons/$NEWNAME.png" |
+ xmlstarlet ed -u "/geogebra/macro[@cmdName=\"$OLDNAME\"]/@cmdName" -v "$NEWNAME" |
+ xmlstarlet ed -u "/geogebra/macro/construction/command[@name=\"$OLDNAME\"]/@name" -v "$NEWNAME"

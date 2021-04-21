@@ -1,0 +1,80 @@
+#!/bin/sh
+
+# General filter. Typical usage: ./filter -o '-X parameter1 -Y parameter2 ...' filter1 filter2 ...
+# where filters can read -X parameter1 and so on. The input and the output are both base64 encoded
+# strings.
+
+# Example usage for .ggb files (to stop animation):
+# cat /path/to/infile.ggb | base64 | ./filter -o '-s false' startAnimation | base64 -d > outfile.ggb
+
+# Use -x to change a different file than geogebra.xml.
+
+# @author Zoltan Kovacs <zoltan@geogebra.org>
+
+cleanup_and_exit() {
+ rm -f $INPUT $OUTPUT $GGB $XML_IN $XML_OUT $ERR
+ rm -fR $GGBDIR
+ # Return error code if there was a problem:
+ exit $RETVAL
+ }
+
+
+MYDIR=`dirname $0`
+MYDIR=`cd $MYDIR; pwd`
+FILTERSDIR=$MYDIR/filters
+
+INPUT=`mktemp`
+OUTPUT=`mktemp`
+
+XML=geogebra.xml
+
+# Load input:
+cat - > $INPUT
+
+# Load options:
+while getopts ":o:x:" OPT; do
+ case $OPT in
+  o)
+   OPTIONS="$OPTARG"
+   ;;
+  x)
+   XML="$OPTARG"
+   ;;
+ esac
+done
+
+# Put name of the filters into $@
+shift $((OPTIND-1))
+
+# Do something with $INPUT here...
+#cat $INPUT > $OUTPUT # default output (do nothing)
+GGB=`mktemp --suffix=.zip`
+XML_IN=`mktemp`
+XML_OUT=`mktemp`
+GGBDIR=`mktemp -d`
+ERR=`mktemp`
+
+base64 -d $INPUT > $GGB
+unzip -qq $GGB -d $GGBDIR >>$ERR 2>&1
+test -r $GGBDIR/$XML || {
+ cat $INPUT
+ cleanup_and_exit
+ }
+cp $GGBDIR/$XML $XML_IN
+cp $GGBDIR/$XML $XML_OUT
+for FILTER in $@; do 
+ cat $XML_IN | $FILTERSDIR/$FILTER $OPTIONS > $XML_OUT
+ cp $XML_OUT $XML_IN
+ done
+cp $XML_OUT $GGBDIR/$XML
+cd $GGBDIR
+zip -r -qq $GGB . >>$ERR 2>&1
+base64 -w0 $GGB > $OUTPUT
+
+RETVAL=$?
+
+# Print $OUTPUT:
+cat $OUTPUT
+
+cleanup_and_exit
+

@@ -1,0 +1,19 @@
+#!/bin/sh
+# Rename an element.
+
+# Parameters are sent with -o "oldname" -n "newname".
+
+# Load options:
+while getopts ":o:n:" O; do
+ case $O in
+  o)
+   OLDNAME=`echo $OPTARG | sed s/'"'//g`
+   ;;
+  n)
+   NEWNAME=`echo $OPTARG | sed s/'"'//g`
+   ;;
+ esac
+done
+
+cat - | \
+ xmlstarlet ed -u "/geogebra/construction/element/caption[@val=\"$OLDNAME\"]/@val" -v "$NEWNAME"

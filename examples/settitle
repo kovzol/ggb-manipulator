@@ -1,0 +1,7 @@
+#!/bin/bash
+
+# This script changes the title in each file in ../ggb-inputs/ to Example, and saves the result in the folder ../ggb-outputs/.
+
+for i in `ls -1 ../ggb-inputs`; do
+ cat ../ggb-inputs/$i | base64 | ../filter -o '-t Example' settitle | base64 -d > ../ggb-outputs/$i
+ done

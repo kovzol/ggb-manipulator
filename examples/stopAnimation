@@ -1,0 +1,5 @@
+#!/bin/bash
+
+# This script starts the animation in ../ggb-inputs/point-on-circle.ggb, and saves the result in the folder ../ggb-outputs/.
+
+cat ../ggb-inputs/point-on-circle.ggb | base64 | ../filter -o '-s false' startAnimation | base64 -d > ../ggb-outputs/point-on-circle.ggb

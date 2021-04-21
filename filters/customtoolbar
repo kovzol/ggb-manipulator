@@ -1,0 +1,20 @@
+#!/bin/sh
+# Change the toolbar to a custom toolbar.
+# Parameter is sent with -c "0 39 59 || ..."
+
+# Load options:
+while getopts ":c:" O; do
+ case $O in
+  c)
+   CUSTOMTOOLBAR=`echo $OPTARG | sed s/'"'//g`
+   ;;
+ esac
+done
+
+if [ "$CUSTOMTOOLBAR" = "" ]; then
+ cat - # do nothing
+ exit 0
+ fi
+
+cat - | \
+ xmlstarlet ed -P -u "/geogebra/gui/toolbar/@str" -v "$CUSTOMTOOLBAR"

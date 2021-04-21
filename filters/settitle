@@ -1,0 +1,15 @@
+#!/bin/sh
+# Set the title by using the content of a text field.
+
+# Parameters are sent with -t variable.
+
+# Load options:
+while getopts ":t:" O; do
+ case $O in
+  t)
+   VARNAME=`echo $OPTARG | sed s/'"'//g`
+   ;;
+ esac
+done
+
+cat - | xmlstarlet ed -u "/geogebra/construction/@title" -v "$VARNAME"
