@@ -1,0 +1,59 @@
+#!/bin/sh
+
+# General selector. Typical usage: ./selector -o '-X parameter1 -Y parameter2 ...' selector GGB-file
+# where the selector can read -X parameter1 and so on.
+
+# Example usage for .ggb files (to get the parameters of the Compare command):
+# ./selector get-compare /path/to/infile.ggb
+
+# Use -x to change a different file than geogebra.xml.
+
+# @author Zoltan Kovacs <zoltan@geogebra.org>
+
+cleanup_and_exit() {
+ rm -f $XML_IN $XML_OUT $ERR
+ rm -fR $GGBDIR
+ # Return error code if there was a problem:
+ exit $RETVAL
+ }
+
+
+MYDIR=`dirname $0`
+MYDIR=`cd $MYDIR; pwd`
+SELECTORSDIR=$MYDIR/selectors
+
+XML=geogebra.xml
+
+# Load options:
+while getopts ":o:x:" OPT; do
+ case $OPT in
+  o)
+   OPTIONS="$OPTARG"
+   ;;
+  x)
+   XML="$OPTARG"
+   ;;
+ esac
+done
+
+# Put name of the selector into $@
+shift $((OPTIND-1))
+
+# Do something with $GGB here...
+XML_IN=`mktemp`
+XML_OUT=`mktemp`
+GGBDIR=`mktemp -d`
+ERR=`mktemp`
+SELECTOR=$1
+GGB=$2
+
+unzip -qq $GGB -d $GGBDIR >>$ERR 2>&1
+test -r $GGBDIR/$XML || cleanup_and_exit
+cp $GGBDIR/$XML $XML_IN
+SELECTOR=$@
+cat $XML_IN | $SELECTORSDIR/$SELECTOR $OPTIONS
+
+RETVAL=$?
+
+cleanup_and_exit
+

@@ -1,0 +1,5 @@
+#!/bin/sh
+# Get the parameters of the Compare command.
+
+cat - | \
+ xmlstarlet sel -t -m "/geogebra/construction/command[@name='Compare']/input" -v "concat(@a0,',',@a1)"
