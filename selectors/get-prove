@@ -1,0 +1,7 @@
+#!/bin/sh
+# Get the parameters of the Prove command.
+
+cat - | \
+ xmlstarlet sel -t -m "/geogebra/construction/command[@name='Prove']/input" -v "concat(@a0,'')" | \
+ sed s/"&gt;"/">"/g | \
+ sed s/"&lt;"/"<"/g

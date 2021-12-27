@@ -1,13 +1,14 @@
 #!/bin/sh
 # Cypressize a file:
 #
-# 1. Change labelMode from 3 to 0.
-# 2. Remove Compare commands.
+# 1. Change labelMode from 3 to 0 to avoid LaTeX typesetting of complicated labels.
+# 2. Remove Compare and Prove commands to avoid heavy computations on startup.
 # 3. Add dummy Prove command to force loading Giac.
 
 cat - | \
  xmlstarlet ed -u "/geogebra/construction/element[@labelMode=\"3\"]/@labelMode" -v "0" | \
  xmlstarlet ed -d "/geogebra/construction/command[@name=\"Compare\"]" | \
+ xmlstarlet ed -d "/geogebra/construction/command[@name=\"Prove\"]" | \
  xmlstarlet ed --inplace --subnode /geogebra/construction -t elem -n "command" --var new_node '$prev' --insert '$new_node' --type attr --name "name" --value "Prove" | \
  xmlstarlet ed --inplace --subnode "/geogebra/construction/command[@name=\"Prove\"]" -t elem -n "input" --var new_node '$prev' --insert '$new_node' --type attr --name "a0" --value true |\
  xmlstarlet ed --inplace --subnode "/geogebra/construction/command[@name=\"Prove\"]" -t elem -n "output" --var new_node '$prev' --insert '$new_node' --type attr --name "a0" --value dummyProve
